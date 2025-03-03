@@ -1,3 +1,12 @@
-<script setup></script>
+<script setup>
+import { useDatabase } from "~/composables/useDatabase";
 
-<template>Hello World</template>
+const select = async () => {
+  const db = await useDatabase();
+};
+</script>
+
+<template>
+  Hello World
+  <Button @click="select"></Button>
+</template>
