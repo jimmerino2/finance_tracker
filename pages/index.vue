@@ -1,12 +1,12 @@
-<script setup>
-import { useDatabase } from "~/composables/useDatabase";
-
-const select = async () => {
-  const db = await useDatabase();
-};
-</script>
-
 <template>
   Hello World
-  <Button @click="select"></Button>
+  <NuxtLink to="/plan">
+    <Button>To Plan</Button>
+  </NuxtLink>
+  <NuxtLink to="/transactions">
+    <Button>To Transactions</Button>
+  </NuxtLink>
+  <NuxtLink to="/category">
+    <Button>To Category</Button>
+  </NuxtLink>
 </template>
