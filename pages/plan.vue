@@ -1,6 +1,15 @@
 <script setup>
 import { useDatabase } from "../composables/useDatabase";
-const db = await useDatabase();
+import { useUserStore } from "../stores/userStore";
+
+let db;
+onMounted(async () => {
+  db = await useDatabase();
+  users.value = await db.select(`SELECT * FROM users`);
+
+  console.log(users.value);
+});
+
 const inputs = [
   { label: "name", type: "text" },
   { label: "income", type: "number" },
@@ -8,13 +17,15 @@ const inputs = [
 ];
 const formData = ref({});
 
+const userStore = useUserStore();
 async function submitForm(event) {
   event.preventDefault();
 
   try {
-    await db.execute(
-      `INSERT INTO user (name, income, saving) VALUES (?, ?, ?)`,
-      [formData.value.name, formData.value.income, formData.value.saving]
+    await userStore.addUser(
+      formData.value.name,
+      formData.value.income,
+      formData.value.saving
     );
 
     console.log("✅ Data inserted successfully!");

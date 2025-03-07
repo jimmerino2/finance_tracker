@@ -5,6 +5,7 @@ let db: Database | null = null;
 export async function useDatabase() {
   if (!db) {
     db = await Database.load("sqlite:finance.db"); // Create or open `finance.db`
+    // await wipeDatabase();
     await setupDatabase(); // Ensure tables exist
   }
   return db;
@@ -15,7 +16,7 @@ async function setupDatabase() {
 
   // User
   await db.execute(`
-    CREATE TABLE IF NOT EXISTS user ( 
+    CREATE TABLE IF NOT EXISTS users ( 
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL UNIQUE,
       income REAL NOT NULL,
@@ -31,8 +32,18 @@ async function setupDatabase() {
       description TEXT,
       budget REAL NOT NULL,
       userID INTEGER NOT NULL,
-      FOREIGN KEY (userID) REFERENCES user(id)  
+      FOREIGN KEY (userID) REFERENCES users(id)  
     )
+  `);
+
+  // Session
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );    
   `);
 
   // Transactions
@@ -49,9 +60,16 @@ async function setupDatabase() {
   `);
 }
 
-async function dropTables() {
+async function wipeDatabase() {
   if (!db) return;
-  await db.execute(`DROP TABLE category`);
-  await db.execute(`DROP TABLE transactions`);
-  await db.execute(`DROP TABLE user`);
+  console.log("⚠️ Wiping database...");
+
+  // Drop tables if they exist
+  await db.execute(`DROP TABLE IF EXISTS transactions`);
+  await db.execute(`DROP TABLE IF EXISTS sessions`);
+  await db.execute(`DROP TABLE IF EXISTS category`);
+  await db.execute(`DROP TABLE IF EXISTS users`);
+  await db.execute(`DROP TABLE IF EXISTS user`);
+
+  console.log("✅ Database wiped successfully!");
 }
